@@ -1,0 +1,1 @@
+2011-1-28 21:36:6:774; Error; Rendering; g:\programs\utilities\logtesting\logtesting\logtesting.cpp:57; tralala
