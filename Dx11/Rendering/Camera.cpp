@@ -327,15 +327,10 @@ bool Camera::Slerp(XMFLOAT4 *pOrientation)
 
 XMFLOAT3* Camera::TransformVector(const XMFLOAT4 *pOrientation, XMFLOAT3 *pAxis)
 {
-	XMVECTOR vNewAxis = XMLoadFloat3(pAxis);
-	vNewAxis = XMVectorSetW(vNewAxis, 1);
-	XMMATRIX matRotation;
-
-	// Build a matrix from the quaternion.
-	matRotation = XMMatrixRotationQuaternion(XMLoadFloat4(pOrientation));
-
-	vNewAxis = XMVector4Transform(vNewAxis, matRotation);
-
+	auto vNewAxis = XMVectorSetW(XMLoadFloat3(pAxis), 1);
+	auto orientation = XMLoadFloat4(pOrientation);
+	vNewAxis = XMQuaternionMultiply(XMQuaternionMultiply(XMQuaternionConjugate(orientation), vNewAxis), orientation);
+	
 	XMStoreFloat3(pAxis, vNewAxis);
 
 	return(pAxis);
