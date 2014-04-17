@@ -34,6 +34,7 @@ namespace Logging
 	Logger::Logger(size_t size)
 		: m_Buffer(new LogBuffer(size))
 		, m_Run(true)
+		, m_MinimalLogSeverity(0)
 	{
 		m_LoggingThread = boost::thread(RealLogger(this));
 
@@ -69,6 +70,9 @@ namespace Logging
 					, const std::string& file
 					, const std::string& data)
 	{
+		if (m_MinimalLogSeverity > int(severity))
+			return;
+
 		SYSTEMTIME time;
 		::GetSystemTime(&time);
 

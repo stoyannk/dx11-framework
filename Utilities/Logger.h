@@ -25,6 +25,11 @@ namespace Logging
 		// Gains ownership
 		void AddTarget(std::ostream* stream, bool takeOwnership = true);
 
+		void SetMinimalLogSeverity(Severity severity)
+		{
+			m_MinimalLogSeverity = int(severity);
+		}
+
 		~Logger();
 
 		void Log(Severity severity
@@ -75,6 +80,8 @@ namespace Logging
 		HANDLE m_BufferLoggedEvent;
 		HANDLE m_EndEvent;
 
+		int m_MinimalLogSeverity;
+
 	private:
 		template<typename Tuple, unsigned N>
 		struct UnpackLogData
@@ -103,6 +110,9 @@ namespace Logging
 			, const std::string& file
 			, const Tuple& data)
 	{
+		if (m_MinimalLogSeverity > int(severity))
+			return;
+
 		std::ostringstream unpackedData;
 
 		UnpackLogData<Tuple, std::tuple_size<Tuple>::value - 1>::Unpack(data, unpackedData);
