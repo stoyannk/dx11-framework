@@ -31,6 +31,7 @@ public:
 	{}
 
 	ReleaseGuard(ReleaseGuard&& rhs)
+		: m_Pointer(nullptr)
 	{
 		*this = std::move(rhs);
 	}
@@ -39,8 +40,7 @@ public:
 	{
 		if(this != &rhs)
 		{
-			m_Pointer = rhs.m_Pointer;
-			rhs.m_Pointer = nullptr;
+			std::swap(m_Pointer, rhs.m_Pointer);
 		}
 
 		return *this;
