@@ -26,5 +26,5 @@ private:
 	std::string m_ClassName;
 	std::string m_WindowName;
 
-	std::unique_ptr<boost::thread> m_Thread;
+	std::unique_ptr<std::thread> m_Thread;
 };

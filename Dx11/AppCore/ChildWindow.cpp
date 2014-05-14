@@ -17,7 +17,7 @@ void ChildWindow::Start(char* className, char* windowName, unsigned width, unsig
 	m_ClassName = className;
 	m_WindowName = windowName;
 
-	m_Thread.reset(new boost::thread(std::bind(&ChildWindow::Run, shared_from_this(), instance, winProc)));
+	m_Thread.reset(new std::thread(std::bind(&ChildWindow::Run, shared_from_this(), instance, winProc)));
 }
 	
 void ChildWindow::Run(HINSTANCE instance, WNDPROC winProc)

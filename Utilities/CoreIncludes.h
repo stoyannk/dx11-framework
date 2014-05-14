@@ -23,13 +23,12 @@
 
 #include <memory>
 #include <tuple>
+#include <thread>
+#include <mutex>
 
 #include <boost/scoped_array.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_array.hpp>
-
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 
 #include <boost/circular_buffer.hpp>
 

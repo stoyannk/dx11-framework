@@ -22,7 +22,7 @@ namespace Logging
 	// Gains ownership
 	void Logger::AddTarget(std::ostream* stream, bool takeOwnership)
 	{
-		boost::mutex::scoped_lock lock(m_TargetsMutex); 
+		std::lock_guard<std::mutex> lock(m_TargetsMutex); 
 		m_Targets.push_back(std::make_pair(stream, takeOwnership));
 	}
 
@@ -36,7 +36,7 @@ namespace Logging
 		, m_Run(true)
 		, m_MinimalLogSeverity(0)
 	{
-		m_LoggingThread = boost::thread(RealLogger(this));
+		m_LoggingThread = std::thread(RealLogger(this));
 
 		m_BufferLoggedEvent = m_Buffer->GetLogEvent();
 
@@ -52,7 +52,7 @@ namespace Logging
 
 		::CloseHandle(m_EndEvent);
 
-		boost::mutex::scoped_lock lock(m_TargetsMutex);
+		std::lock_guard<std::mutex> lock(m_TargetsMutex);
 		for(auto it = m_Targets.cbegin(); it != m_Targets.cend(); ++it)
 		{
 			if(it->second)
@@ -99,7 +99,7 @@ namespace Logging
 	void Logger::RealLogger::Log() const
 	{
 		LogEntry entry;
-		boost::mutex::scoped_lock lock(m_Parent->m_TargetsMutex);
+		std::lock_guard<std::mutex> lock(m_Parent->m_TargetsMutex);
 		while(m_Parent->m_Buffer->RemoveEntry(entry))
 		{
 			for(auto it = m_Parent->m_Targets.begin(); it != m_Parent->m_Targets.end(); ++it)

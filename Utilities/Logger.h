@@ -72,9 +72,9 @@ namespace Logging
 		typedef std::vector<std::pair<std::ostream*, bool>> Targets;
 		Targets m_Targets;
 
-		boost::mutex m_TargetsMutex;
+		std::mutex m_TargetsMutex;
 
-		boost::thread m_LoggingThread;
+		std::thread m_LoggingThread;
 		bool m_Run;
 
 		HANDLE m_BufferLoggedEvent;
