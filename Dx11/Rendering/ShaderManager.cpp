@@ -340,3 +340,35 @@ bool ShaderManager::CreateGeneratedBuffer(unsigned elementSize, unsigned element
 
 	return true;
 }
+
+bool ShaderManager::CreateStructuredBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav)
+{
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = elementSize * elementCount;
+	bd.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	bd.StructureByteStride = elementSize;
+	if (FAILED(m_Device->CreateBuffer(&bd, nullptr, buffer)))
+	{
+		SLOG(Sev_Error, Fac_Rendering, "Unable to create structured buffer");
+		return false;
+	}
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	desc.Buffer.FirstElement = 0;
+	desc.Format = DXGI_FORMAT_UNKNOWN;
+	desc.Buffer.NumElements = elementCount;
+
+	if (FAILED(m_Device->CreateUnorderedAccessView(*buffer, &desc, uav)))
+	{
+		SLOG(Sev_Error, Fac_Rendering, "Unable to create uav");
+		return false;
+	}
+
+	return true;
+}
