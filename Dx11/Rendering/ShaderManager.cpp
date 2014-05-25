@@ -279,4 +279,64 @@ bool ShaderManager::CompileShaderTrio(const std::string& shadersFileName
 	return true;
 }
 
+bool ShaderManager::CreateIndexedIndirectBuffer(ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav)
+{
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(UINT) * 5;
+	bd.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS | D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+	bd.StructureByteStride = sizeof(UINT);
+	if (FAILED(m_Device->CreateBuffer(&bd, nullptr, buffer)))
+	{
+		SLOG(Sev_Error, Fac_Rendering, "Unable to create indexed indirect buffer");
+		return false;
+	}
 
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	ZeroMemory(&uavDesc, sizeof(uavDesc));
+	uavDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	uavDesc.Buffer.FirstElement = 0;
+	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
+	uavDesc.Buffer.NumElements = 5;
+	if (FAILED(m_Device->CreateUnorderedAccessView(*buffer, &uavDesc, uav)))
+	{
+		(*buffer)->Release();
+		SLOG(Sev_Error, Fac_Rendering, "Unable to create indexed indirect uav");
+		return false;
+	}
+	return true;
+}
+
+bool ShaderManager::CreateGeneratedBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav)
+{
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_INDEX_BUFFER;
+	bd.ByteWidth = elementSize * elementCount;
+	bd.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+	if (FAILED(m_Device->CreateBuffer(&bd, nullptr, buffer)))
+	{
+		SLOG(Sev_Error, Fac_Rendering, "Unable to create generated vb/ib buffer");
+		return false;
+	}
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	ZeroMemory(&uavDesc, sizeof(uavDesc));
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	uavDesc.Buffer.FirstElement = 0;
+	uavDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
+	uavDesc.Buffer.NumElements = (elementSize * elementCount) / 4;
+	if (FAILED(m_Device->CreateUnorderedAccessView(*buffer, &uavDesc, uav)))
+	{
+		SLOG(Sev_Error, Fac_Rendering, "Unable to create generated vb/ib UAV");
+		return false;
+	}
+
+	return true;
+}
