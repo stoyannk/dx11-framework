@@ -313,7 +313,7 @@ bool ShaderManager::CreateIndexedIndirectBuffer(ID3D11Buffer** buffer, ID3D11Uno
 	return true;
 }
 
-bool ShaderManager::CreateGeneratedBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav)
+bool ShaderManager::CreateGeneratedBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav, ID3D11ShaderResourceView** srv)
 {
 	UINT bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_INDEX_BUFFER;
 
@@ -350,10 +350,26 @@ bool ShaderManager::CreateGeneratedBuffer(unsigned elementSize, unsigned element
 		}
 	}
 
+	if (srv)
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+		desc.BufferEx.FirstElement = 0;
+		desc.Format = DXGI_FORMAT_R32_TYPELESS;
+		desc.BufferEx.Flags = D3D11_BUFFEREX_SRV_FLAG_RAW;
+		desc.BufferEx.NumElements = (elementSize * elementCount) / 4;
+		if (FAILED(m_Device->CreateShaderResourceView(*buffer, &desc, srv)))
+		{
+			SLOG(Sev_Error, Fac_Rendering, "Unable to create structured SRV");
+			return false;
+		}
+	}
+
 	return true;
 }
 
-bool ShaderManager::CreateStructuredBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav)
+bool ShaderManager::CreateStructuredBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav, ID3D11ShaderResourceView** srv)
 {
 	UINT bindFlags = D3D11_BIND_SHADER_RESOURCE;
 	if (uav)
@@ -391,24 +407,19 @@ bool ShaderManager::CreateStructuredBuffer(unsigned elementSize, unsigned elemen
 		}
 	}
 
-	return true;
-}
-
-bool ShaderManager::CreateStructuredBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11ShaderResourceView** srv)
-{
-	if (!CreateStructuredBuffer(elementSize, elementCount, buffer, (ID3D11UnorderedAccessView**)nullptr))
-		return false;
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
-	desc.BufferEx.FirstElement = 0;
-	desc.Format = DXGI_FORMAT_UNKNOWN;
-	desc.BufferEx.NumElements = elementCount;
-	if (FAILED(m_Device->CreateShaderResourceView(*buffer, &desc, srv)))
+	if (srv)
 	{
-		SLOG(Sev_Error, Fac_Rendering, "Unable to create structured SRV");
-		return false;
+		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+		desc.BufferEx.FirstElement = 0;
+		desc.Format = DXGI_FORMAT_UNKNOWN;
+		desc.BufferEx.NumElements = elementCount;
+		if (FAILED(m_Device->CreateShaderResourceView(*buffer, &desc, srv)))
+		{
+			SLOG(Sev_Error, Fac_Rendering, "Unable to create structured SRV");
+			return false;
+		}
 	}
 
 	return true;

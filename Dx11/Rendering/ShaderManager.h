@@ -90,12 +90,10 @@ public:
 	template<typename T>
 	bool CreateEasyStructuredBuffer(ID3D11Buffer** buffer, unsigned numElements, bool isDynamic = false, bool isUav = false);
 
-	bool CreateStructuredBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav);
-	bool CreateStructuredBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11ShaderResourceView** srv);
+	bool CreateStructuredBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav, ID3D11ShaderResourceView** srv);
+	bool CreateGeneratedBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav, ID3D11ShaderResourceView** srv);
 
 	bool CreateIndexedIndirectBuffer(ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav);
-
-	bool CreateGeneratedBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav);
 
 protected:
 	ID3D11Device* m_Device;
