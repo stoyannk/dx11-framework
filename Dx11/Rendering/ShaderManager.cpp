@@ -10,6 +10,8 @@ ShaderManager::ShaderManager(ID3D11Device* device)
 {
 }
 
+#define D3D_COMPILE_STANDARD_FILE_INCLUDE ((ID3DInclude*)(UINT_PTR)1)
+
 bool ShaderManager::CompileShaderFromFile(const std::string& fileName
 										, const std::string& entryPoint
 										, const std::string& shaderModel
@@ -47,7 +49,7 @@ bool ShaderManager::CompileShaderFromFile(const std::string& fileName
 
 	len = size_t(fin.gcount() + prologueSz);
 
-	hr = D3DCompile((const void*)data.get(), len, fileName.c_str(), nullptr, nullptr, 
+	hr = D3DCompile((const void*)data.get(), len, fileName.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 					entryPoint.c_str(), shaderModel.c_str(), shaderFlags, 0, shader, &errorBlob);
 
 	ReleaseGuard<ID3DBlob> errorGuard(errorBlob);
@@ -313,10 +315,17 @@ bool ShaderManager::CreateIndexedIndirectBuffer(ID3D11Buffer** buffer, ID3D11Uno
 
 bool ShaderManager::CreateGeneratedBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav)
 {
+	UINT bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_INDEX_BUFFER;
+
+	if (uav)
+	{
+		bindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+	}
+
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_INDEX_BUFFER;
+	bd.BindFlags = bindFlags;
 	bd.ByteWidth = elementSize * elementCount;
 	bd.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 	if (FAILED(m_Device->CreateBuffer(&bd, nullptr, buffer)))
@@ -325,17 +334,20 @@ bool ShaderManager::CreateGeneratedBuffer(unsigned elementSize, unsigned element
 		return false;
 	}
 
-	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
-	ZeroMemory(&uavDesc, sizeof(uavDesc));
-	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
-	uavDesc.Buffer.FirstElement = 0;
-	uavDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
-	uavDesc.Buffer.NumElements = (elementSize * elementCount) / 4;
-	if (FAILED(m_Device->CreateUnorderedAccessView(*buffer, &uavDesc, uav)))
+	if (uav)
 	{
-		SLOG(Sev_Error, Fac_Rendering, "Unable to create generated vb/ib UAV");
-		return false;
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+		ZeroMemory(&uavDesc, sizeof(uavDesc));
+		uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+		uavDesc.Buffer.FirstElement = 0;
+		uavDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+		uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
+		uavDesc.Buffer.NumElements = (elementSize * elementCount) / 4;
+		if (FAILED(m_Device->CreateUnorderedAccessView(*buffer, &uavDesc, uav)))
+		{
+			SLOG(Sev_Error, Fac_Rendering, "Unable to create generated vb/ib UAV");
+			return false;
+		}
 	}
 
 	return true;
@@ -343,11 +355,17 @@ bool ShaderManager::CreateGeneratedBuffer(unsigned elementSize, unsigned element
 
 bool ShaderManager::CreateStructuredBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11UnorderedAccessView** uav)
 {
+	UINT bindFlags = D3D11_BIND_SHADER_RESOURCE;
+	if (uav)
+	{
+		bindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+	}
+
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = elementSize * elementCount;
-	bd.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	bd.BindFlags = bindFlags;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	bd.StructureByteStride = elementSize;
@@ -357,16 +375,39 @@ bool ShaderManager::CreateStructuredBuffer(unsigned elementSize, unsigned elemen
 		return false;
 	}
 
-	D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
-	desc.Buffer.FirstElement = 0;
-	desc.Format = DXGI_FORMAT_UNKNOWN;
-	desc.Buffer.NumElements = elementCount;
-
-	if (FAILED(m_Device->CreateUnorderedAccessView(*buffer, &desc, uav)))
+	if (uav)
 	{
-		SLOG(Sev_Error, Fac_Rendering, "Unable to create uav");
+		D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+		desc.Buffer.FirstElement = 0;
+		desc.Format = DXGI_FORMAT_UNKNOWN;
+		desc.Buffer.NumElements = elementCount;
+
+		if (FAILED(m_Device->CreateUnorderedAccessView(*buffer, &desc, uav)))
+		{
+			SLOG(Sev_Error, Fac_Rendering, "Unable to create uav");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool ShaderManager::CreateStructuredBuffer(unsigned elementSize, unsigned elementCount, ID3D11Buffer** buffer, ID3D11ShaderResourceView** srv)
+{
+	if (!CreateStructuredBuffer(elementSize, elementCount, buffer, (ID3D11UnorderedAccessView**)nullptr))
+		return false;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+	desc.BufferEx.FirstElement = 0;
+	desc.Format = DXGI_FORMAT_UNKNOWN;
+	desc.BufferEx.NumElements = elementCount;
+	if (FAILED(m_Device->CreateShaderResourceView(*buffer, &desc, srv)))
+	{
+		SLOG(Sev_Error, Fac_Rendering, "Unable to create structured SRV");
 		return false;
 	}
 
