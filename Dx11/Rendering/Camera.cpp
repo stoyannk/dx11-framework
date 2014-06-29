@@ -17,7 +17,7 @@ Camera::Camera()
 	Init();
 }
 
-Camera::Camera(XMFLOAT3 vPos, XMFLOAT3 vCamOffset, CameraType type = CAM_FPS)
+Camera::Camera(XMFLOAT3 vPos, XMFLOAT3 vCamOffset, CameraType type)
 {
 	m_vectCamOffset = vCamOffset;
 	m_vectPosition = vPos;

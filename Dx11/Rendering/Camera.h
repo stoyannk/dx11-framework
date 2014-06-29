@@ -42,10 +42,10 @@ public:
 	
 	const DirectX::XMFLOAT4 GetRotation() const { return m_quatOrientation; }
 
-	static bool RotateZAxis(DirectX::XMFLOAT4* pOrientation, float Angle);
-	static bool RotateYAxis(DirectX::XMFLOAT4* pOrientation, float Angle);
-	static bool RotateXAxis(DirectX::XMFLOAT4* pOrientation, float Angle);
-	static bool RotateAxis(DirectX::XMFLOAT4* pOrientation, DirectX::XMFLOAT3* pAxis, float Angle);
+	bool RotateZAxis(DirectX::XMFLOAT4* pOrientation, float Angle);
+	bool RotateYAxis(DirectX::XMFLOAT4* pOrientation, float Angle);
+	bool RotateXAxis(DirectX::XMFLOAT4* pOrientation, float Angle);
+	bool RotateAxis(DirectX::XMFLOAT4* pOrientation, DirectX::XMFLOAT3* pAxis, float Angle);
 	static DirectX::XMFLOAT3* TransformVector(const DirectX::XMFLOAT4* pOrientation, DirectX::XMFLOAT3* pAxis);
 
 	bool Slerp(DirectX::XMFLOAT4* pOrientation);
