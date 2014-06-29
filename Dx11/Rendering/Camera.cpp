@@ -12,14 +12,16 @@ Camera::Camera()
 {
 	m_vectCamOffset = vDefCamOffset;
 	m_vectPosition = XMFLOAT3( 0.0f , 0.0f , 0.0f );	// Initial position
+	m_Type = CAM_FPS;
 
 	Init();
 }
 
-Camera::Camera( XMFLOAT3 vPos , XMFLOAT3 vCamOffset )
+Camera::Camera(XMFLOAT3 vPos, XMFLOAT3 vCamOffset, CameraType type = CAM_FPS)
 {
 	m_vectCamOffset = vCamOffset;
 	m_vectPosition = vPos;
+	m_Type = type;
 
 	Init();
 }
@@ -255,10 +257,16 @@ bool Camera::RotateYAxis(XMFLOAT4 *pOrientation, float fAngle)
 	{
 		XMFLOAT4 Rotation;
 
+		XMFLOAT3 rotateAround = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		if (m_Type == CAM_FPS)
+		{
+			TransformVector(pOrientation, &rotateAround);
+		}
+
 		// FPS style camera
 		XMStoreFloat4(&Rotation, 
 						XMQuaternionRotationAxis(
-						XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f)), fAngle));
+						XMLoadFloat3(&rotateAround), fAngle));
 
 
 		XMStoreFloat4(pOrientation, XMQuaternionMultiply(XMLoadFloat4(pOrientation), XMLoadFloat4(&Rotation)));

@@ -10,11 +10,12 @@ class Camera
 private:
 	enum eDir		{ ceMove, ceStraf, ceUp };
 	enum eOrient	{ cePitch , ceRoll , ceYaw };
+	enum CameraType { CAM_FPS, CAM_Free };
 	static const DirectX::XMFLOAT3 vDefCamOffset;
 
 public:
 	Camera();
-	Camera( DirectX::XMFLOAT3 vPos, DirectX::XMFLOAT3 vCamOffset);
+	Camera(DirectX::XMFLOAT3 vPos, DirectX::XMFLOAT3 vCamOffset, CameraType type = CAM_FPS);
 	virtual ~Camera();
 
 	void SetOrientation(DirectX::XMFLOAT4 quatOrient);
@@ -57,6 +58,9 @@ public:
 	float GetRPM() const		{ return m_fRPM;		}
 	float GetSlerpSpeed() const { return m_fSlerpSpeed; }
 	
+	CameraType GetTyep() const { return m_Type; }
+	void SetType(CameraType type) { m_Type = type; }
+
 private:
 	void ApplyTranslation(float fDistance, eDir ceDir);
 	void ApplyRotate(float fAngle, eOrient oeOrient);
@@ -76,4 +80,6 @@ private:
 	float m_fSlerpSpeed;
 	float m_fSpeed;
 	float m_fRPM;
+
+	CameraType m_Type;
 };

@@ -161,25 +161,30 @@ bool ScreenQuad::Draw(ID3D11ShaderResourceView** textures, unsigned texCount)
 	// Set shaders
 	context->VSSetShader(m_VertexShader.Get(), nullptr, 0);
  	context->PSSetShader(m_PixelShader.Get(), nullptr, 0);
-	context->PSSetShaderResources(0, texCount, textures);
-
-	if (m_CustomSampler)
+	if (texCount)
 	{
-		context->PSSetSamplers(0, 1, &m_CustomSampler);
-		if (m_RetainDefaultSampler)
+		context->PSSetShaderResources(0, texCount, textures);
+		if (m_CustomSampler)
 		{
-			context->PSSetSamplers(1, 1, m_LinearSampler.GetConstPP());
+			context->PSSetSamplers(0, 1, &m_CustomSampler);
+			if (m_RetainDefaultSampler)
+			{
+				context->PSSetSamplers(1, 1, m_LinearSampler.GetConstPP());
+			}
+		}
+		else
+		{
+			context->PSSetSamplers(0, 1, m_LinearSampler.GetConstPP());
 		}
 	}
-	else
-	{
-		context->PSSetSamplers(0, 1, m_LinearSampler.GetConstPP());
-	}
-
+	
 	DrawDirect(context);
 
-	ID3D11ShaderResourceView* rv[] = {nullptr};
-	context->PSSetShaderResources(0, 1, rv);
+	if (texCount)
+	{
+		ID3D11ShaderResourceView* rv[] = { nullptr };
+		context->PSSetShaderResources(0, 1, rv);
+	}
 
 	return true;
 }
