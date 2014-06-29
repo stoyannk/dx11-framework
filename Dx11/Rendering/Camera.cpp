@@ -258,7 +258,7 @@ bool Camera::RotateYAxis(XMFLOAT4 *pOrientation, float fAngle)
 		XMFLOAT4 Rotation;
 
 		XMFLOAT3 rotateAround = XMFLOAT3(0.0f, 1.0f, 0.0f);
-		if (m_Type == CAM_FPS)
+		if (m_Type != CAM_FPS)
 		{
 			TransformVector(pOrientation, &rotateAround);
 		}
