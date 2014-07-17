@@ -188,13 +188,15 @@ ID3D11GeometryShader* ShaderManager::CompileGeometryShader(const std::string& sh
 
 ID3D11ComputeShader* ShaderManager::CompileComputeShader(const std::string& shadersFileName
 											, const std::string& csEntry
-											, const std::string& csModel)
+											, const std::string& csModel
+											, const std::string& prologue)
 {
 	ID3DBlob* blob = nullptr;
 	if(!CompileShaderFromFile(shadersFileName
 							, csEntry
 							, csModel
-							, &blob))
+							, &blob
+							, prologue))
 	{
 		return nullptr;
 	}

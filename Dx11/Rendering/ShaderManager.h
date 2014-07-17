@@ -31,7 +31,8 @@ public:
 
 	ID3D11ComputeShader* CompileComputeShader(const std::string& shadersFileName
 											, const std::string& csEntry
-											, const std::string& csModel);
+											, const std::string& csModel
+											, const std::string& prologue = "");
 
 	struct CompilationOutput
 	{
