@@ -12,17 +12,25 @@ public:
 	static GeneratedMeshPtr Create(
 		ID3D11Device* device,
 		unsigned bufferSize,
-		const std::string& generatingFunction);
+		const std::string& generatingFunction,
+		const DirectX::XMINT3& dispatch);
 	virtual ~GeneratedMesh();
 
-	void SetGeneratingFunction(const std::string& generatingFunction)
+	void SetGenerator(const std::string& generatingFunction,
+		const DirectX::XMINT3& dispatch)
 	{
 		m_GeneratingFunction = generatingFunction;
+		m_Dispatch = dispatch;
 	}
 
 	const std::string& GetGeneratingFunction() const
 	{
 		return m_GeneratingFunction;
+	}
+
+	const DirectX::XMINT3& GetDispatch() const
+	{
+		return m_Dispatch;
 	}
 
 	unsigned GetBufferSize() const
@@ -65,10 +73,13 @@ public:
 	}
 
 private:
-	GeneratedMesh(unsigned buffSize, const std::string& generatingFunction);
+	GeneratedMesh(unsigned buffSize,
+		const std::string& generatingFunction,
+		const DirectX::XMINT3& dispatch);
 
 	unsigned m_BufferSize;
 	std::string m_GeneratingFunction;
+	DirectX::XMINT3 m_Dispatch;
 
 	ReleaseGuard<ID3D11Buffer> m_GeneratedBuffer;
 	ReleaseGuard<ID3D11UnorderedAccessView> m_GeneratedUAV;

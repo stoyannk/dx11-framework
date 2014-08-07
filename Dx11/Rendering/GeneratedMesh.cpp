@@ -10,9 +10,12 @@
 
 GeneratedMeshPtr GeneratedMesh::Create(ID3D11Device* device,
 	unsigned bufferSize,
-	const std::string& generatingFunction)
+	const std::string& generatingFunction,
+	const DirectX::XMINT3& dispatch)
 {
-	GeneratedMeshPtr result(new GeneratedMesh(bufferSize, generatingFunction));
+	GeneratedMeshPtr result(new GeneratedMesh(bufferSize,
+		generatingFunction,
+		dispatch));
 	
 	ShaderManager shaderManager(device);
 	if (!shaderManager.CreateGeneratedBuffer(
@@ -56,9 +59,11 @@ GeneratedMeshPtr GeneratedMesh::Create(ID3D11Device* device,
 }
 
 GeneratedMesh::GeneratedMesh(unsigned buffSize, 
-	const std::string& generatingFunction)
+	const std::string& generatingFunction,
+	const DirectX::XMINT3& dispatch)
 	: m_BufferSize(buffSize)
 	, m_GeneratingFunction(generatingFunction)
+	, m_Dispatch(dispatch)
 {}
 
 GeneratedMesh::~GeneratedMesh()
