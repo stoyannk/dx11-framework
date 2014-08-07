@@ -101,6 +101,12 @@
     <ClInclude Include="ConstantBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -167,6 +173,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MaterialShaderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateHolder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

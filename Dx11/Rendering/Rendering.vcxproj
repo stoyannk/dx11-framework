@@ -159,6 +159,7 @@
     <ClInclude Include="DxRenderer.h" />
     <ClInclude Include="DxRenderingRoutine.h" />
     <ClInclude Include="FrustumCuller.h" />
+    <ClInclude Include="GeneratedMesh.h" />
     <ClInclude Include="Providers.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialShaderManager.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="RawSaver.h" />
     <ClInclude Include="ScreenQuad.h" />
     <ClInclude Include="SoftwareRasterizer.h" />
+    <ClInclude Include="StateHolder.h" />
     <ClInclude Include="Subset.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderingRoutine.h" />
@@ -187,6 +189,7 @@
     <ClCompile Include="DxRenderer.cpp" />
     <ClCompile Include="DxRenderingRoutine.cpp" />
     <ClCompile Include="FrustumCuller.cpp" />
+    <ClCompile Include="GeneratedMesh.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MaterialShaderManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -198,6 +201,7 @@
     <ClCompile Include="RawSaver.cpp" />
     <ClCompile Include="ScreenQuad.cpp" />
     <ClCompile Include="SoftwareRasterizer.cpp" />
+    <ClCompile Include="StateHolder.cpp" />
     <ClCompile Include="Subset.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="stdafx.cpp">

@@ -6,6 +6,7 @@
 #include <d3d11.h>
 #include "Renderer.h"
 #include "TextureManager.h"
+#include "StateHolder.h"
 
 class RenderingRoutine;
 
@@ -96,6 +97,11 @@ public:
 		return m_TexManager;
 	}
 
+	const StateHolder& GetStateHolder() const
+	{
+		return m_StateHolder;
+	}
+
 	ID3D11DeviceContext* CreateDeferredContext();
 	bool RemoveDeferredContext(ID3D11DeviceContext* context);
 	const std::vector<ID3D11DeviceContext*>& GetDeferredContexts()
@@ -118,6 +124,8 @@ private:
 	TextureManager m_TexManager;
 	
 	ReleaseGuard<ID3D11Buffer> m_PerFrameConstantBuffer;
+
+	StateHolder m_StateHolder;
 
 	float m_BackBufferWidth;
 	float m_BackBufferHeight;

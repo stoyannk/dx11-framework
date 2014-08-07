@@ -194,6 +194,12 @@ bool DxRenderer::Initialize(HWND hWnd, bool fullscreen, bool sRGB, int samples)
 		return false;
 	}
 
+	if (!m_StateHolder.Initialize(GetDevice()))
+	{
+		SLOG(Sev_Error, Fac_Rendering, "Unable to create initialize rendering states!");
+		return false;
+	}
+
     return true;
 }
  
