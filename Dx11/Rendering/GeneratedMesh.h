@@ -4,7 +4,7 @@
 #pragma once
 
 class GeneratedMesh;
-typedef std::unique_ptr<GeneratedMesh> GeneratedMeshPtr;
+typedef std::shared_ptr<GeneratedMesh> GeneratedMeshPtr;
 
 class GeneratedMesh
 {

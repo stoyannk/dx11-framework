@@ -158,6 +158,7 @@
     <ClInclude Include="DepthCuller.h" />
     <ClInclude Include="DxRenderer.h" />
     <ClInclude Include="DxRenderingRoutine.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="FrustumCuller.h" />
     <ClInclude Include="GeneratedMesh.h" />
     <ClInclude Include="Providers.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="DepthCuller.cpp" />
     <ClCompile Include="DxRenderer.cpp" />
     <ClCompile Include="DxRenderingRoutine.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="FrustumCuller.cpp" />
     <ClCompile Include="GeneratedMesh.cpp" />
     <ClCompile Include="Material.cpp" />

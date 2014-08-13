@@ -50,3 +50,8 @@ void ComputeObjectAABB(VertType* vertices, int* indices, size_t indicesCount, OO
 	bbox.Points[6] = XMLoadFloat4(&XMFLOAT4(max.x, max.y, min.z, 1));
 	bbox.Points[7] = XMLoadFloat4(&max);
 }
+
+void TransformAABB(const AABB& original,
+	const DirectX::XMMATRIX& transform,
+	const DirectX::XMVECTOR& translation,
+	AABB& result);

@@ -3,9 +3,7 @@
 // This software is governed by a permissive BSD-style license. See LICENSE.
 #pragma once
 
-#include "Subset.h"
-
-class Mesh;
+#include "Entity.h"
 
 class FrustumCuller
 {
@@ -18,11 +16,15 @@ public:
 	void Cull(const std::vector<Mesh>& meshes, std::vector<SubsetPtr>& outSubsets);
 	void Cull(const Mesh* meshes, unsigned meshCount, std::vector<SubsetPtr>& outSubsets);
 
+	void Cull(const EntityVec& entities, EntityToDrawVec& outEntitiesToDraw);
+
 	static void CalculateFrustumPlanes(const DirectX::XMFLOAT4X4& viewMat, const DirectX::XMFLOAT4X4& projMat, DirectX::XMFLOAT4 outPlanes[6]);
 
 private:
 	void RecalcPlanes();
-	bool IsSubsetVisible(SubsetPtr subset);
+	bool IsSubsetVisible(SubsetPtr subset,
+		const DirectX::XMMATRIX* tranfs = nullptr,
+		const DirectX::XMVECTOR* trnaslation = nullptr);
 
 	DirectX::XMFLOAT4X4 m_View;
 	DirectX::XMFLOAT4X4 m_Projection;

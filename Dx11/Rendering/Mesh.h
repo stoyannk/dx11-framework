@@ -10,7 +10,7 @@ class Mesh
 public:
 	Mesh(ID3D11Buffer* vb);
 
-	virtual ~Mesh();
+	~Mesh();
 
 	void AddSubset(SubsetPtr subset);
 
@@ -24,3 +24,5 @@ private:
 	ID3D11Buffer* m_VertexBuffer;
 	std::vector<SubsetPtr> m_Subsets;
 };
+
+typedef std::shared_ptr<Mesh> MeshPtr;

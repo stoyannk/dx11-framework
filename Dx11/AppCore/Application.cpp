@@ -99,7 +99,9 @@ bool Application::Initiate(char* className, char* windowName, unsigned width, un
 	// Set the thread affinity mask for better clock
 	::SetThreadAffinityMask(::GetCurrentThread(), 1);
 
-	m_LastTick = ::GetTickCount();
+	LARGE_INTEGER ticks;
+	::QueryPerformanceCounter(&ticks);
+	m_LastTick = ticks.QuadPart;
 
     return true;
 }

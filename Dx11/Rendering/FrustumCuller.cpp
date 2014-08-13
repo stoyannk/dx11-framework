@@ -53,9 +53,52 @@ void FrustumCuller::Cull(const Mesh* meshes, unsigned meshCount, std::vector<Sub
 	});
 }
 
-bool FrustumCuller::IsSubsetVisible(SubsetPtr subset)
+void FrustumCuller::Cull(const EntityVec& entities, EntityToDrawVec& outEntitiesToDraw)
 {
-	AABB aabb = subset->GetAABB();
+	if (m_ArePlanesDirty)
+	{
+		RecalcPlanes();
+	}
+
+	for (auto entity : entities) {
+		auto rotAndScale = XMMatrixScaling(entity.Scale, entity.Scale, entity.Scale) * XMMatrixRotationQuaternion(entity.Rotation);
+		auto transl = XMLoadFloat3A(&entity.Position);
+
+		std::vector<SubsetPtr> outSubsets;
+		size_t subsets = entity.Mesh->GetSubsetCount();
+		for (size_t i = 0; i < subsets; ++i)
+		{
+			SubsetPtr subset = entity.Mesh->GetSubset(i);
+			if (IsSubsetVisible(subset, &rotAndScale, &transl))
+			{
+				outSubsets.push_back(subset);
+			}
+		}
+
+		if (outSubsets.size()) {
+			EntityToDraw toDraw;
+			toDraw.Geometry = entity.Mesh.get();
+			toDraw.WorldMatrix = rotAndScale * XMMatrixTranslationFromVector(transl);
+			toDraw.Subsets = std::move(outSubsets);
+			outEntitiesToDraw.emplace_back(toDraw);
+		}
+	}
+}
+
+bool FrustumCuller::IsSubsetVisible(SubsetPtr subset,
+	const DirectX::XMMATRIX* tranfs,
+	const DirectX::XMVECTOR* translation)
+{
+	AABB aabb;
+
+	if (tranfs && translation) {
+		TransformAABB(subset->GetAABB(), *tranfs, *translation, aabb);
+	}
+	else
+	{
+		aabb = subset->GetAABB();
+	}
+
 	XMFLOAT4 aabbmin, aabbmax;
 	XMStoreFloat4(&aabbmin, aabb.Min);
 	XMStoreFloat4(&aabbmax, aabb.Max);
@@ -163,4 +206,35 @@ void FrustumCuller::RecalcPlanes()
 {
 	CalculateFrustumPlanes(m_View, m_Projection, m_Planes);
 	m_ArePlanesDirty = false;
+}
+
+void TransformAABB(const AABB& original,
+	const DirectX::XMMATRIX& transform,
+	const DirectX::XMVECTOR& translation,
+	AABB& result)
+{
+	using namespace DirectX;
+
+	for (int i = 0; i < 3; ++i) {
+		const auto transl = XMVectorGetByIndex(translation, i);
+		result.Min = XMVectorSetByIndex(result.Min, transl, i);
+		result.Max = XMVectorSetByIndex(result.Max, transl, i);
+
+		for (int j = 0; j < 3; j++) {
+			float e = XMVectorGetByIndex(transform.r[j], i) * XMVectorGetByIndex(original.Min, j);
+			float f = XMVectorGetByIndex(transform.r[j], i) * XMVectorGetByIndex(original.Max, j);
+
+			auto rmini = XMVectorGetByIndex(result.Min, i);
+			auto rmaxi = XMVectorGetByIndex(result.Max, i);
+			if (e < f) {
+				result.Min = XMVectorSetByIndex(result.Min, rmini + e, i);
+				result.Max = XMVectorSetByIndex(result.Max, rmaxi + f, i);
+			}
+			else
+			{
+				result.Min = XMVectorSetByIndex(result.Min, rmini + f, i);
+				result.Max = XMVectorSetByIndex(result.Max, rmaxi + e, i);
+			}
+		}
+	}
 }

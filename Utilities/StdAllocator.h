@@ -124,3 +124,58 @@ private:
 	template<typename U, unsigned A> friend class StdAllocatorAligned;
 	std::shared_ptr<AllocatorBase> m_Allocator;
 };
+
+template<typename T, unsigned Alignment>
+class StdAllocatorAlignedDefault {
+public:
+	typedef T value_type;
+	typedef value_type* pointer;
+	typedef const value_type* const_pointer;
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
+	typedef std::size_t size_type;
+	typedef std::ptrdiff_t difference_type;
+
+public:
+	template<typename U>
+	struct rebind {
+		typedef StdAllocatorAlignedDefault<U, Alignment> other;
+	};
+
+public:
+	inline StdAllocatorAlignedDefault()
+	{}
+
+	inline StdAllocatorAlignedDefault(const StdAllocatorAlignedDefault& rhs)
+	{}
+
+	template<typename U>
+	inline explicit StdAllocatorAlignedDefault(const StdAllocatorAlignedDefault<U, Alignment>& rhs)
+	{}
+
+	inline pointer address(reference r) { return &r; }
+	inline const_pointer address(const_reference r) { return &r; }
+
+	inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = 0)
+	{
+		return reinterpret_cast<pointer>(_aligned_malloc(cnt * sizeof (T), Alignment));
+	}
+	inline void deallocate(pointer p, size_type)
+	{
+		_aligned_free(p);
+	}
+
+	inline size_type max_size() const
+	{
+		return std::numeric_limits<size_type>::max() / sizeof(T);
+	}
+
+	inline void construct(pointer p, const T& t) { ::new(p) T(t); }
+	inline void destroy(pointer p) { p->~T(); }
+
+	inline bool operator==(StdAllocatorAlignedDefault const&) { return true; }
+	inline bool operator!=(StdAllocatorAlignedDefault const& a) { return !operator==(a); }
+
+private:
+	template<typename U, unsigned A> friend class StdAllocatorAlignedDefault;
+};
