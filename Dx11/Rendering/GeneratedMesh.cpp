@@ -19,7 +19,7 @@ GeneratedMeshPtr GeneratedMesh::Create(ID3D11Device* device,
 	
 	ShaderManager shaderManager(device);
 	if (!shaderManager.CreateGeneratedBuffer(
-		sizeof(PositionNormalVertex), 
+		sizeof(PositionNormalTextIndsVertex), 
 		result->GetBufferSize(),
 		result->m_GeneratedBuffer.Receive(),
 		result->m_GeneratedUAV.Receive(),

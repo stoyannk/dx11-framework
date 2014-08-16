@@ -30,6 +30,24 @@ struct PositionNormalVertex
 	DirectX::XMFLOAT3 Normal;
 };
 
+struct PositionNormalTextIndsVertex
+{
+	PositionNormalTextIndsVertex()
+	{}
+
+	PositionNormalTextIndsVertex(const DirectX::XMFLOAT3& pos,
+		const DirectX::XMFLOAT3& normal,
+		const DirectX::XMUINT2& txtInds)
+		: Position(pos)
+		, Normal(normal)
+		, TextureIndices(txtInds)
+	{}
+
+	DirectX::XMFLOAT3 Position;
+	DirectX::XMFLOAT3 Normal;
+	DirectX::XMUINT2 TextureIndices;
+};
+
 struct PositionColorVertex
 {
 	PositionColorVertex()
@@ -69,6 +87,7 @@ struct StandardVertex
 
 extern D3D11_INPUT_ELEMENT_DESC PositionVertexLayout[1];
 extern D3D11_INPUT_ELEMENT_DESC PositionNormalVertexLayout[2];
+extern D3D11_INPUT_ELEMENT_DESC PositionNormalTextIndsVertexLayout[3];
 extern D3D11_INPUT_ELEMENT_DESC PositionColorVertexLayout[2];
 extern D3D11_INPUT_ELEMENT_DESC PositionTextureVertexLayout[2];
 extern D3D11_INPUT_ELEMENT_DESC StandardVertexLayout[5];
