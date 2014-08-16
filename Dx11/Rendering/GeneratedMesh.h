@@ -3,6 +3,8 @@
 // This software is governed by a permissive BSD-style license. See LICENSE.
 #pragma once
 
+#include "Material.h"
+
 class GeneratedMesh;
 typedef std::shared_ptr<GeneratedMesh> GeneratedMeshPtr;
 
@@ -15,6 +17,16 @@ public:
 		const std::string& generatingFunction,
 		const DirectX::XMINT3& dispatch);
 	virtual ~GeneratedMesh();
+
+	const Material& GetMaterial() const
+	{
+		return m_Material;
+	}
+
+	void SetMaterial(const Material& m)
+	{
+		m_Material = m;
+	}
 
 	void SetGenerator(const std::string& generatingFunction,
 		const DirectX::XMINT3& dispatch)
@@ -92,4 +104,6 @@ private:
 
 	ReleaseGuard<ID3D11Buffer> m_IndirectBuffer;
 	ReleaseGuard<ID3D11UnorderedAccessView> m_IndirectUAV;
+
+	Material m_Material;
 };

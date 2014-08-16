@@ -7,11 +7,12 @@
 
 enum MaterialProperties
 {
-	MP_Diffuse = 1,
-	MP_Normal = 2,
-	MP_AlphaMask = 4,
-	MP_SpecularMap = 8,
-	MP_SpecularPower = 16,
+	MP_Diffuse = 1 << 0,
+	MP_Normal = 1 << 1,
+	MP_AlphaMask = 1 << 2,
+	MP_SpecularMap = 1 << 3,
+	MP_SpecularPower = 1 << 4,
+	MP_TextureArrays = 1 << 5,
 };
 
 class Material
@@ -36,6 +37,8 @@ public:
 
 	float GetSpecularPower() const;
 	void SetSpecularPower(float power);
+
+	void SetProperty(MaterialProperties prop);
 
 	bool HasProperty(MaterialProperties prop) const;
 

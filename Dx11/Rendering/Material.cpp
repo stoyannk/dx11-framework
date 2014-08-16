@@ -100,6 +100,11 @@ void Material::SetSpecularPower(float power)
 	}
 }
 
+void Material::SetProperty(MaterialProperties prop)
+{
+	SETFLAG(m_Properties, prop);
+}
+
 bool Material::HasProperty(MaterialProperties prop)	const
 {
 	return !!(m_Properties & prop);
