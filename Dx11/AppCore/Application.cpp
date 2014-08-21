@@ -220,3 +220,8 @@ void Application::MouseButtonDown(MouseBtn button, int x, int y)
 void Application::MouseButtonUp(MouseBtn button, int x, int y)
 {}
 
+void Application::PreRender()
+{}
+
+void Application::PostRender()
+{}

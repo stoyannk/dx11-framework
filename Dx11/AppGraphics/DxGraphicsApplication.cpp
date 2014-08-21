@@ -45,7 +45,9 @@ void DxGraphicsApplication::Run()
 	
 	GetRenderer()->SetupFrame(GetMainCamera(), GetProjection());
 
+	PreRender();
 	GetRenderer()->PreRender();
 	GetRenderer()->Render(GetLastFrameTime());
 	GetRenderer()->PostRender();
+	PostRender();
 }

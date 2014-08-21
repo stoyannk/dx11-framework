@@ -27,6 +27,9 @@ public:
 
 	virtual void Run();
 
+	virtual void PreRender();
+	virtual void PostRender();
+
 	virtual void Update(float delta);
 
 	virtual void HandleWindowsMessage(const MSG& msg);
