@@ -16,7 +16,7 @@ GeneratedMeshPtr GeneratedMesh::Create(ID3D11Device* device,
 	GeneratedMeshPtr result(new GeneratedMesh(bufferSize,
 		generatingFunction,
 		dispatch));
-	
+
 	ShaderManager shaderManager(device);
 	if (!shaderManager.CreateGeneratedBuffer(
 		sizeof(PositionNormalTextIndsVertex), 
@@ -64,6 +64,7 @@ GeneratedMesh::GeneratedMesh(unsigned buffSize,
 	: m_BufferSize(buffSize)
 	, m_GeneratingFunction(generatingFunction)
 	, m_Dispatch(dispatch)
+	, m_Dynamic(false)
 {}
 
 GeneratedMesh::~GeneratedMesh()

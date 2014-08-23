@@ -18,6 +18,16 @@ public:
 		const DirectX::XMINT3& dispatch);
 	virtual ~GeneratedMesh();
 
+	void SetDynamic(bool d)
+	{
+		m_Dynamic = d;
+	}
+
+	bool IsDynamic() const
+	{
+		return m_Dynamic;
+	}
+
 	const Material& GetMaterial() const
 	{
 		return m_Material;
@@ -106,4 +116,5 @@ private:
 	ReleaseGuard<ID3D11UnorderedAccessView> m_IndirectUAV;
 
 	Material m_Material;
+	bool m_Dynamic;
 };
