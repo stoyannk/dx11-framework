@@ -4,6 +4,7 @@
 
 #include "LogBuffer.h"
 
+#ifndef MINIMAL_SIZE
 #define STLOG(SEVERITY, FACILITY, DATA) \
 	Logging::Logger::Get().Log(SEVERITY, FACILITY, __LINE__, __FILE__, DATA)
 
@@ -12,6 +13,13 @@
 
 #define SLLOG(SEVERITY, FACILITY, ...) \
 	Logging::Logger::Get().Log(Logging::SEVERITY, Logging::FACILITY, __LINE__, __FILE__, std::make_tuple(__VA_ARGS__))
+#else
+#define STLOG(SEVERITY, FACILITY, DATA)
+
+#define SLOG(SEVERITY, FACILITY, ...)
+
+#define SLLOG(SEVERITY, FACILITY, ...)
+#endif
 
 namespace Logging
 {

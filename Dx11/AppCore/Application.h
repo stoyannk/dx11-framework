@@ -68,7 +68,11 @@ private:
 		float EstimateFPS() const;
 
 	private:
+#ifndef MINIMAL_SIZE
 		boost::circular_buffer<float> Buffer;
+#else
+		float m_LastFrameTime;
+#endif
 	};
 
 	typedef std::vector<std::shared_ptr<ChildWindow>> ChildrenVec;

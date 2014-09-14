@@ -3,7 +3,7 @@
 // This software is governed by a permissive BSD-style license. See LICENSE.
 #include "stdafx.h"
 
-#include <Utilities\Assertions.h>
+#include <Utilities/Assertions.h>
 
 #include "Application.h"
 #include "ChildWindow.h"
@@ -11,19 +11,30 @@
 #include <numeric>
 
 Application::FPSEstimator::FPSEstimator()
+#ifndef MINIMAL_SIZE
 	: Buffer(10)
+#else
+	: m_LastFrameTime(0)
+#endif
 {}
 
 void Application::FPSEstimator::AddFrame(float frameTime)
 {
+#ifndef MINIMAL_SIZE
 	Buffer.push_back(frameTime);
+#else
+	m_LastFrameTime = frameTime;
+#endif
 }
 
 float Application::FPSEstimator::EstimateFPS() const
 {
+#ifndef MINIMAL_SIZE
 	float sum = std::accumulate(Buffer.begin(), Buffer.end(), 0.f);
-
 	return sum / Buffer.size();
+#else
+	return m_LastFrameTime;
+#endif
 }
 
 Application::Application(HINSTANCE instance)

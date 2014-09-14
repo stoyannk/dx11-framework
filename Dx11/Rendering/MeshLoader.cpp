@@ -3,6 +3,7 @@
 // This software is governed by a permissive BSD-style license. See LICENSE.
 #include "stdafx.h"
 
+#ifndef MINIMAL_SIZE
 #include "MeshLoader.h"
 #include "Mesh.h"
 
@@ -43,3 +44,5 @@ Mesh* MeshLoader::LoadMesh(DxRenderer* renderer, const std::string& filename, st
 
 	return mesh;
 }
+
+#endif

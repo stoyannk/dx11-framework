@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "MtlLoader.h"
 
+#ifndef MINIMAL_SIZE
+
 MtlLoader::MtlLoader(const std::string& filename)
 	: m_IsOpen(false)
 	, m_Error(MTL_OK)
@@ -149,4 +151,5 @@ MtlLoader::MaterialTextures MtlLoader::GetMaterialInfo(const std::string& materi
 	
 	return it->second;
 }
- 
+
+#endif

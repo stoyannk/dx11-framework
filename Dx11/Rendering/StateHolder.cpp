@@ -23,6 +23,20 @@ bool StateHolder::Initialize(ID3D11Device* device)
 			desc.FrontCounterClockwise = TRUE;
 			return desc;
 		},
+		[]() -> CD3D11_RASTERIZER_DESC {
+			CD3D11_RASTERIZER_DESC desc((CD3D11_DEFAULT()));
+			desc.CullMode = D3D11_CULL_BACK;
+			desc.FillMode = D3D11_FILL_WIREFRAME;
+			desc.FrontCounterClockwise = FALSE;
+			return desc;
+		},
+			[]() -> CD3D11_RASTERIZER_DESC {
+			CD3D11_RASTERIZER_DESC desc((CD3D11_DEFAULT()));
+			desc.CullMode = D3D11_CULL_BACK;
+			desc.FillMode = D3D11_FILL_WIREFRAME;
+			desc.FrontCounterClockwise = TRUE;
+			return desc;
+		},
 	};
 
 	for (auto gen = 0; gen < RST_Count; ++gen) {

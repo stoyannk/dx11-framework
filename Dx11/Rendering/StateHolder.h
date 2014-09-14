@@ -11,6 +11,9 @@ public:
 		RST_FrontCW,
 		RST_FrontCCW,
 
+		RST_FrontCWWire,
+		RST_FrontCCWWire,
+
 		RST_Count
 	};
 	
