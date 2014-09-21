@@ -82,6 +82,12 @@ bool StateHolder::Initialize(ID3D11Device* device)
 			desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 			return desc;
 		},
+		[]()->CD3D11_DEPTH_STENCIL_DESC {
+			CD3D11_DEPTH_STENCIL_DESC desc((CD3D11_DEFAULT()));
+			desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+			desc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+			return desc;
+		},
 	};
 	for (auto gen = 0; gen < DSST_Count; ++gen) {
 		if (FAILED(device->CreateDepthStencilState(&depthGenerators[gen](), m_DepthStates[gen].Receive())))

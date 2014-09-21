@@ -28,7 +28,7 @@ public:
 	enum DSStates
 	{
 		DSST_NoWriteLE,
-
+		DSST_NoWritePass,
 		DSST_Count
 	};
 

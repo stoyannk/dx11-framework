@@ -19,11 +19,16 @@ public:
 
 	bool DrawDirect(ID3D11DeviceContext* context);
 
+	bool ReloadShaders();
+
 private:
 	ReleaseGuard<ID3D11Buffer> m_VB;
 	ReleaseGuard<ID3D11Buffer> m_IB;
 
 	DxRenderer* m_Renderer;
+	std::string m_ShaderName;
+	std::string m_VSEntry;
+	std::string m_PSEntry;
 
 	// Shaders
 	ReleaseGuard<ID3D11VertexShader> m_VertexShader;

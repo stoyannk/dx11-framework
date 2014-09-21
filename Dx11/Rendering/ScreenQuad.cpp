@@ -22,40 +22,12 @@ bool ScreenQuad::Initialize(DxRenderer* renderer, const char* shader, const char
 {
 	m_Renderer = renderer;
 
-	ShaderManager shaderManager(m_Renderer->GetDevice());
+	m_ShaderName = shader;
+	m_VSEntry = vs_entry;
+	m_PSEntry = ps_entry;
 
-	ShaderManager::CompilationOutput compilationResult;
-	// Create shaders
-	if(!shaderManager.CompileShaderDuo(shader
-									, vs_entry
-									, "vs_4_0"
-									, ps_entry
-									, "ps_4_0"
-									, compilationResult))
-	{
-		compilationResult.ReleaseAll();
+	if (!ReloadShaders())
 		return false;
-	}
-
-	ReleaseGuard<ID3DBlob> vsGuard(compilationResult.vsBlob);
-	ReleaseGuard<ID3DBlob> psGuard(compilationResult.psBlob);
-	m_VertexShader.Set(compilationResult.vertexShader);
-	m_PixelShader.Set(compilationResult.pixelShader);
-	
-	// Define the input layout
-    UINT numElements = ARRAYSIZE(PositionTextureVertexLayout);
-
-	HRESULT hr;
-    // Create the input layout
-	ID3D11InputLayout* vertexLayout = nullptr;
-	hr = m_Renderer->GetDevice()->CreateInputLayout(PositionTextureVertexLayout, numElements, vsGuard.Get()->GetBufferPointer(),
-													vsGuard.Get()->GetBufferSize(), &vertexLayout);
-	if(FAILED(hr))
-	{
-		SLOG(Sev_Error, Fac_Rendering, "Unable to create input layout");
-		return false;
-	}
-	m_VertexLayout.Set(vertexLayout);
 
 	PositionTextureVertex vertices[4];
 	vertices[0] = PositionTextureVertex(-1, -1, 0, 0, 1);
@@ -80,7 +52,7 @@ bool ScreenQuad::Initialize(DxRenderer* renderer, const char* shader, const char
     InitData.pSysMem = vertices;
 
 	ID3D11Buffer* vertexBuffer = nullptr;
-    hr = m_Renderer->GetDevice()->CreateBuffer(&bd, &InitData, &vertexBuffer);
+    auto hr = m_Renderer->GetDevice()->CreateBuffer(&bd, &InitData, &vertexBuffer);
     if(FAILED(hr))
 	{
 		SLOG(Sev_Error, Fac_Rendering, "Unable to create vertex buffer");
@@ -128,6 +100,46 @@ bool ScreenQuad::Initialize(DxRenderer* renderer, const char* shader, const char
 		return false;
 	}
 	m_LinearSampler.Set(linearSampler);
+
+	return true;
+}
+
+bool ScreenQuad::ReloadShaders()
+{
+	ShaderManager shaderManager(m_Renderer->GetDevice());
+
+	ShaderManager::CompilationOutput compilationResult;
+	// Create shaders
+	if (!shaderManager.CompileShaderDuo(m_ShaderName
+		, m_VSEntry
+		, "vs_5_0"
+		, m_PSEntry
+		, "ps_5_0"
+		, compilationResult))
+	{
+		compilationResult.ReleaseAll();
+		return false;
+	}
+
+	ReleaseGuard<ID3DBlob> vsGuard(compilationResult.vsBlob);
+	ReleaseGuard<ID3DBlob> psGuard(compilationResult.psBlob);
+	m_VertexShader.Set(compilationResult.vertexShader);
+	m_PixelShader.Set(compilationResult.pixelShader);
+
+	// Define the input layout
+	UINT numElements = ARRAYSIZE(PositionTextureVertexLayout);
+
+	HRESULT hr;
+	// Create the input layout
+	ID3D11InputLayout* vertexLayout = nullptr;
+	hr = m_Renderer->GetDevice()->CreateInputLayout(PositionTextureVertexLayout, numElements, vsGuard.Get()->GetBufferPointer(),
+		vsGuard.Get()->GetBufferSize(), &vertexLayout);
+	if (FAILED(hr))
+	{
+		SLOG(Sev_Error, Fac_Rendering, "Unable to create input layout");
+		return false;
+	}
+	m_VertexLayout.Set(vertexLayout);
 
 	return true;
 }
