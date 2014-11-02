@@ -49,7 +49,7 @@ GeneratedMeshPtr GeneratedMesh::Create(ID3D11Device* device,
 	if (!shaderManager.CreateStructuredBuffer(sizeof(unsigned)* 2, 1,
 		result->m_CountersBuffer.Receive(),
 		result->m_CountersUAV.Receive(),
-		nullptr))
+		result->m_CountersSRV.Receive()))
 	{
 		SLOG(Sev_Error, Fac_Rendering, "Unable to create structured counters buffer");
 		return GeneratedMeshPtr();

@@ -94,6 +94,10 @@ public:
 		return m_IndirectUAV.Get();
 	}
 
+	ID3D11ShaderResourceView* GetCountersSRV() const
+	{
+		return m_CountersSRV.Get();
+	}
 private:
 	GeneratedMesh(unsigned buffSize,
 		const std::string& generatingFunction,
@@ -111,6 +115,7 @@ private:
 
 	ReleaseGuard<ID3D11Buffer> m_CountersBuffer;
 	ReleaseGuard<ID3D11UnorderedAccessView> m_CountersUAV;
+	ReleaseGuard<ID3D11ShaderResourceView> m_CountersSRV;
 
 	ReleaseGuard<ID3D11Buffer> m_IndirectBuffer;
 	ReleaseGuard<ID3D11UnorderedAccessView> m_IndirectUAV;

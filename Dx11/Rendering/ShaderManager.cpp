@@ -28,7 +28,7 @@ bool ShaderManager::CompileShaderFromFile(const std::string& fileName
 	shaderFlags |= D3DCOMPILE_PREFER_FLOW_CONTROL;
 #endif
 
-    ID3DBlob* errorBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
 	
 	// read the file data
 	std::ifstream fin(fileName.c_str());
