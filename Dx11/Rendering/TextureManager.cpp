@@ -89,23 +89,37 @@ TexturePtr TextureManager::Load(const std::string& filename, bool isSRGB, bool c
 			m_Registry.erase(it);
 		}
 	}
-
-	D3DX11_IMAGE_INFO imageInfo;
-	HRESULT hr = D3DX11GetImageInfoFromFile(filename.c_str(), nullptr, &imageInfo, nullptr);
+	
+	std::wstring wideFile(filename.begin(), filename.end());
+	DirectX::ScratchImage image;
+	DirectX::TexMetadata metaData;
+	HRESULT hr = DirectX::LoadFromDDSFile(wideFile.c_str(), 0, &metaData, image);
 	if(FAILED(hr))
 	{
 		SLOG(Sev_Warning, Fac_Rendering, "Unable to load file for texture ", filename);
 		return TexturePtr();
 	}
 
-	D3DX11_IMAGE_LOAD_INFO loadInfo;
-	if(isSRGB)
+	if (image.GetImageCount() == 1)
 	{
-		loadInfo.Format = Make_Typeless(imageInfo.Format);
+		DirectX::ScratchImage mippedImage;
+		if (FAILED(DirectX::GenerateMipMaps(image.GetImages()[0], DirectX::TEX_FILTER_DEFAULT, 0, mippedImage)))
+		{
+			SLOG(Sev_Warning, Fac_Rendering, "Unable to generate mips for texture ", filename);
+			return TexturePtr();
+		}
+		image = std::move(mippedImage);
+		metaData = image.GetMetadata();
 	}
 
+	if (isSRGB)
+	{
+		metaData.format = Make_Typeless(metaData.format);;
+		image.OverrideFormat(metaData.format);
+	}
+	
 	ID3D11Resource* texture = nullptr;
-	hr = D3DX11CreateTextureFromFile(m_Device, filename.c_str(), &loadInfo, nullptr, &texture, nullptr);
+	hr = DirectX::CreateTexture(m_Device, image.GetImages(), image.GetImageCount(), metaData, &texture);
 	if(FAILED(hr))
 	{
 		SLOG(Sev_Warning, Fac_Rendering, "Unable to load texture ", filename);
@@ -134,7 +148,7 @@ TexturePtr TextureManager::Load(const std::string& filename, bool isSRGB, bool c
 		D3D11_TEXTURE2D_DESC desc;
 		tex->GetDesc(&desc);
 
-		if(imageInfo.ArraySize == 1)
+		if(metaData.arraySize == 1)
 		{
 			srDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 			srDesc.Format = isSRGB ? Make_sRGB(desc.Format) : desc.Format;
@@ -154,7 +168,7 @@ TexturePtr TextureManager::Load(const std::string& filename, bool isSRGB, bool c
 			srDesc.Format = isSRGB ? Make_sRGB(desc.Format) : desc.Format;
 			srDesc.Texture2DArray.MipLevels = desc.MipLevels;
 			srDesc.Texture2DArray.MostDetailedMip = 0;
-			srDesc.Texture2DArray.ArraySize = imageInfo.ArraySize;
+			srDesc.Texture2DArray.ArraySize = metaData.arraySize;
 			srDesc.Texture2DArray.FirstArraySlice = 0;
 		}
 	}
@@ -209,29 +223,38 @@ TexturePtr TextureManager::LoadTexture2DArray(const std::vector<std::string>& fi
 	for(auto filename = filenames.cbegin(); filename != filenames.cend(); ++filename, ++texId)
 	{
 		auto fullName = folder.size() ? folder + "\\" + *filename : *filename;
-		D3DX11_IMAGE_INFO imageInfo;
-		HRESULT hr = D3DX11GetImageInfoFromFile(fullName.c_str(), nullptr, &imageInfo, nullptr);
+		std::wstring wideFile(fullName.begin(), fullName.end());
+		DirectX::ScratchImage image;
+		DirectX::TexMetadata metaData;
+		HRESULT hr = DirectX::LoadFromDDSFile(wideFile.c_str(), 0, &metaData, image);
 		if(FAILED(hr))
 		{
 			SLOG(Sev_Warning, Fac_Rendering, "Unable to file for texture ", fullName);
 			return TexturePtr();
 		}
-		D3DX11_IMAGE_LOAD_INFO loadInfo;
-		if(isSRGB)
+
+		if (image.GetImageCount() == 1)
 		{
-			loadInfo.Format = Make_Typeless(imageInfo.Format);
+			DirectX::ScratchImage mippedImage;
+			if (FAILED(DirectX::GenerateMipMaps(image.GetImages()[0], DirectX::TEX_FILTER_LINEAR, 0, mippedImage)))
+			{
+				SLOG(Sev_Warning, Fac_Rendering, "Unable to generate mips for texture ", fullName);
+				return TexturePtr();
+			}
+			image = std::move(mippedImage);
+			metaData = image.GetMetadata();
 		}
 
-        loadInfo.FirstMipLevel = 0;
-        loadInfo.Usage = D3D11_USAGE_STAGING;
-        loadInfo.BindFlags = 0;
-        loadInfo.CpuAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
-        loadInfo.MiscFlags = 0;
-        loadInfo.Filter = D3DX11_FILTER_LINEAR;
-        loadInfo.MipFilter = D3DX11_FILTER_LINEAR;
+		if (isSRGB)
+		{
+			metaData.format = Make_Typeless(metaData.format);
+			image.OverrideFormat(metaData.format);
+		}
 
 		ReleaseGuard<ID3D11Resource> tempResource;
-		hr = D3DX11CreateTextureFromFile(m_Device, fullName.c_str(), &loadInfo, nullptr, tempResource.Receive(), nullptr);
+		hr = DirectX::CreateTextureEx(m_Device, image.GetImages(), image.GetImageCount(), metaData,
+			D3D11_USAGE_STAGING, 0, D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ, 0, false,
+			tempResource.Receive());
 		if(FAILED(hr))
 		{
 			SLOG(Sev_Warning, Fac_Rendering, "Unable to load texture ", fullName);

@@ -3,19 +3,54 @@
 // This software is governed by a permissive BSD-style license. See LICENSE.
 #pragma once
 
-struct OOBB
-{
-	DirectX::XMVECTOR Points[8];
-};
-
 struct AABB
 {
 	DirectX::XMVECTOR Min;
 	DirectX::XMVECTOR Max;
+
+	void Merge(const AABB& other)
+	{
+		Min = DirectX::XMVectorMin(Min, other.Min);
+		Max = DirectX::XMVectorMin(Max, other.Max);
+	}
+
+	static AABB Merge(const AABB& b1, const AABB& b2)
+	{
+		AABB result = b1;
+		result.Merge(b2);
+		return result;
+	}
+};
+
+struct OOBB
+{
+	static OOBB FromAABB(const AABB& aabb)
+	{
+		using namespace DirectX;
+		XMFLOAT4A min;
+		XMStoreFloat4A(&min, aabb.Min);
+		XMFLOAT4A max;
+		XMStoreFloat4A(&max, aabb.Max);
+
+		OOBB bbox;
+		bbox.Points[0] = XMLoadFloat4A(&min);
+		bbox.Points[1] = XMLoadFloat4A(&XMFLOAT4A(min.x, min.y, max.z, 1));
+		bbox.Points[2] = XMLoadFloat4A(&XMFLOAT4A(min.x, max.y, min.z, 1));
+		bbox.Points[3] = XMLoadFloat4A(&XMFLOAT4A(min.x, max.y, max.z, 1));
+
+		bbox.Points[4] = XMLoadFloat4A(&XMFLOAT4A(max.x, min.y, min.z, 1));
+		bbox.Points[5] = XMLoadFloat4A(&XMFLOAT4A(max.x, min.y, max.z, 1));
+		bbox.Points[6] = XMLoadFloat4A(&XMFLOAT4A(max.x, max.y, min.z, 1));
+		bbox.Points[7] = XMLoadFloat4A(&max);
+
+		return bbox;
+	}
+
+	DirectX::XMVECTOR Points[8];
 };
 
 template<typename VertType>
-void ComputeObjectAABB(VertType* vertices, int* indices, size_t indicesCount, OOBB& bbox)
+void ComputeObjectAABB(VertType* vertices, int* indices, size_t indicesCount, AABB& bbox)
 {
 	using namespace DirectX;
 
@@ -39,16 +74,8 @@ void ComputeObjectAABB(VertType* vertices, int* indices, size_t indicesCount, OO
 		max.z = std::max(max.z, vertex.Position.z);
 	}
 
-	// Compute the OOBB
-	bbox.Points[0] = XMLoadFloat4(&min);
-	bbox.Points[1] = XMLoadFloat4(&XMFLOAT4(min.x, min.y, max.z, 1));
-	bbox.Points[2] = XMLoadFloat4(&XMFLOAT4(min.x, max.y, min.z, 1));
-	bbox.Points[3] = XMLoadFloat4(&XMFLOAT4(min.x, max.y, max.z, 1));
-	
-	bbox.Points[4] = XMLoadFloat4(&XMFLOAT4(max.x, min.y, min.z, 1));
-	bbox.Points[5] = XMLoadFloat4(&XMFLOAT4(max.x, min.y, max.z, 1));
-	bbox.Points[6] = XMLoadFloat4(&XMFLOAT4(max.x, max.y, min.z, 1));
-	bbox.Points[7] = XMLoadFloat4(&max);
+	bbox.Min = XMLoadFloat4(&min);
+	bbox.Max = XMLoadFloat4(&max);
 }
 
 void TransformAABB(const AABB& original,

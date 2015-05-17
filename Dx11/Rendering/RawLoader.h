@@ -5,9 +5,10 @@
 
 class Mesh;
 class DxRenderer;
+class MeshSDF;
 
 class RawLoader
 {
 public:
-	Mesh* Load(DxRenderer* renderer, const std::string& filename, std::string& errors);
+	Mesh* Load(DxRenderer* renderer, const std::string& filename, std::string& errors, MeshSDF* sdf = nullptr);
 };

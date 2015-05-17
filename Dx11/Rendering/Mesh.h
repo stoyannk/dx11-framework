@@ -20,9 +20,15 @@ public:
 
 	ID3D11Buffer* GetVertexBuffer() const;
 
+	unsigned GetTrianglesCount() const
+	{
+		return m_TrianglesCount;
+	}
+
 private:
 	ID3D11Buffer* m_VertexBuffer;
 	std::vector<SubsetPtr> m_Subsets;
+	unsigned m_TrianglesCount;
 };
 
 typedef std::shared_ptr<Mesh> MeshPtr;

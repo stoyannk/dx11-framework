@@ -110,6 +110,12 @@
     <ClInclude Include="Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MeshSDF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MathConv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -185,6 +191,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshSDF.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

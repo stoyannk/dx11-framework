@@ -5,9 +5,10 @@
 
 class Mesh;
 class DxRenderer;
+class MeshSDF;
 
 class MeshLoader
 {
 public:
-	static Mesh* LoadMesh(DxRenderer* renderer, const std::string& filename, std::string& errors);
+	static Mesh* LoadMesh(DxRenderer* renderer, const std::string& filename, std::string& errors, MeshSDF* sdf = nullptr);
 };

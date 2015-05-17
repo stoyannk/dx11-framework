@@ -10,7 +10,7 @@
 #include "ObjLoader.h"
 #include "RawLoader.h"
 
-Mesh* MeshLoader::LoadMesh(DxRenderer* renderer, const std::string& filename, std::string& errors)
+Mesh* MeshLoader::LoadMesh(DxRenderer* renderer, const std::string& filename, std::string& errors, MeshSDF* sdf)
 {
 	Mesh* mesh = nullptr;
 
@@ -35,7 +35,7 @@ Mesh* MeshLoader::LoadMesh(DxRenderer* renderer, const std::string& filename, st
 	{
 		RawLoader loader;
 
-		mesh = loader.Load(renderer, filename, errors);
+		mesh = loader.Load(renderer, filename, errors, sdf);
 	}
 	else
 	{

@@ -9,11 +9,13 @@
 
 #include "VertexTypes.h"
 #include "Mesh.h"
+#include "MeshSDF.h"
 #include "BoundingVolumes.h"
+#include "MathConv.h"
 
 using namespace DirectX;
 
-Mesh* RawLoader::Load(DxRenderer* renderer, const std::string& filename, std::string& errors)
+Mesh* RawLoader::Load(DxRenderer* renderer, const std::string& filename, std::string& errors, MeshSDF* sdf)
 {
 	std::ifstream fin(filename);
 
@@ -177,7 +179,14 @@ Mesh* RawLoader::Load(DxRenderer* renderer, const std::string& filename, std::st
 	}
 
 	std::vector<SubsetPtr> subsets;
-
+	std::vector<const unsigned*> indices;
+	std::vector<unsigned> indicesSizes;
+	AABB meshAABB;
+	if (sdf)
+	{
+		indices.reserve(subsetData.size());
+		indicesSizes.reserve(subsetData.size());
+	}
 	for(SubsetDataArray::const_iterator it = subsetData.begin(); it != subsetData.end(); ++it)
 	{
 		// create a new subset
@@ -201,6 +210,12 @@ Mesh* RawLoader::Load(DxRenderer* renderer, const std::string& filename, std::st
 			return nullptr;
 		}
 		
+		if (sdf)
+		{
+			indices.push_back((const unsigned*)InitData.pSysMem);
+			indicesSizes.push_back(std::get<1>(*it) / sizeof(unsigned));
+		}
+
 		// parse the diffuse color
 		std::vector<std::string> splitted;
 		boost::split(splitted, std::get<2>(*it), boost::is_any_of(" "), boost::token_compress_on);
@@ -237,7 +252,7 @@ Mesh* RawLoader::Load(DxRenderer* renderer, const std::string& filename, std::st
 			specularMap = renderer->GetTextureManager().Load(std::get<6>(*it));
 		}
 
-		OOBB bbox;
+		AABB bbox;
 		ComputeObjectAABB<StandardVertex>(reinterpret_cast<StandardVertex*>(vertsData.get())
 									, reinterpret_cast<int*>(std::get<0>(*it).get())
 									, std::get<1>(*it) / sizeof(int)
@@ -253,6 +268,17 @@ Mesh* RawLoader::Load(DxRenderer* renderer, const std::string& filename, std::st
 
 		SubsetPtr subset(new Subset(indexBuffer, std::get<1>(*it) / sizeof(DWORD), material, bbox));
 		subsets.push_back(subset);	
+		if (sdf)
+		{
+			if (it != subsetData.begin())
+			{
+				meshAABB.Merge(bbox);
+			}
+			else
+			{
+				meshAABB = bbox;
+			}
+		}
 	}
 
 	// create vertex buffer
@@ -276,6 +302,16 @@ Mesh* RawLoader::Load(DxRenderer* renderer, const std::string& filename, std::st
 
 	Mesh* mesh = new Mesh(vertexBuffer);
 	std::for_each(subsets.begin(), subsets.end(), std::tr1::bind(&Mesh::AddSubset, mesh, std::tr1::placeholders::_1));
+
+	if (sdf)
+	{
+		sdf->Populate((const StandardVertex*)vertsData.get(),
+			indices.data(),
+			indicesSizes.data(),
+			subsets.size(),
+			toVec3(meshAABB.Min),
+			toVec3(meshAABB.Max));
+	}
 
 	return mesh;
 }

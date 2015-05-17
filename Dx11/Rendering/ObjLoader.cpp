@@ -149,7 +149,7 @@ Mesh* ObjLoader::Load(DxRenderer* renderer, const std::string& filename, std::st
 			return false;
 		}
 
-		OOBB bbox;
+		AABB bbox;
 		ComputeObjectAABB<StandardVertex>(&readyVertices[0]
 									, reinterpret_cast<int*>(&readyIndices[0])
 									, readyIndices.size()

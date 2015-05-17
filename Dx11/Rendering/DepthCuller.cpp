@@ -378,7 +378,7 @@ void DepthCuller::ReprojectDepth(const XMFLOAT4X4& view, const XMFLOAT4X4& proje
 		clippedTriangles.clear();
 		// Get the bbox and project it
 		//AABB bbox = subset->GetAABB();
-		OOBB bbox = subset->GetOOBB();
+		OOBB bbox = OOBB::FromAABB(subset->GetAABB());
 
 		// Populate the box vertices
 		//BBoxVertices[0] = bbox.Min;

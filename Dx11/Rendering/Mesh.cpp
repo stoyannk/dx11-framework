@@ -7,6 +7,7 @@
 
 Mesh::Mesh(ID3D11Buffer* vb)
 	: m_VertexBuffer(vb)
+	, m_TrianglesCount(0)
 {}
 
 Mesh::~Mesh()
@@ -22,6 +23,7 @@ ID3D11Buffer* Mesh::GetVertexBuffer() const
 void Mesh::AddSubset(SubsetPtr subset)
 {
 	m_Subsets.push_back(subset);
+	m_TrianglesCount += subset->GetIndicesCount() / 3;
 }
 
 SubsetPtr Mesh::GetSubset(size_t id) const
