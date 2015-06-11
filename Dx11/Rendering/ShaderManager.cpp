@@ -137,7 +137,8 @@ ID3D11ComputeShader* ShaderManager::CreateComputeShader(ID3DBlob* compiledCode, 
 
 ID3D11VertexShader* ShaderManager::CompileVertexShader(const std::string& shadersFileName
 											, const std::string& vsEntry
-											, const std::string& vsModel)
+											, const std::string& vsModel
+											, CompilationOutput* output)
 {
 	ID3DBlob* blob = nullptr;
 	if(!CompileShaderFromFile(shadersFileName
@@ -149,7 +150,15 @@ ID3D11VertexShader* ShaderManager::CompileVertexShader(const std::string& shader
 	}
 	ReleaseGuard<ID3DBlob> blobGuard(blob);
 
-	return CreateVertexShader(blobGuard.Get(), nullptr);
+	auto ret = CreateVertexShader(blobGuard.Get(), nullptr);
+
+	if (output)
+	{
+		output->vsBlob = blobGuard.Denounce();
+		output->vertexShader = ret;
+	}
+
+	return ret;
 }
 
 ID3D11PixelShader* ShaderManager::CompilePixelShader(const std::string& shadersFileName

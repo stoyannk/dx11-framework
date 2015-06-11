@@ -17,23 +17,6 @@ public:
 	ID3D11ComputeShader* CreateComputeShader(ID3DBlob* compiledCode, ID3D11ClassLinkage* linkage);
 
 
-	ID3D11VertexShader* CompileVertexShader(const std::string& shadersFileName
-											, const std::string& vsEntry
-											, const std::string& vsModel);
-
-	ID3D11PixelShader* CompilePixelShader(const std::string& shadersFileName
-											, const std::string& psEntry
-											, const std::string& psModel);
-
-	ID3D11GeometryShader* CompileGeometryShader(const std::string& shadersFileName
-											, const std::string& gsEntry
-											, const std::string& gsModel);
-
-	ID3D11ComputeShader* CompileComputeShader(const std::string& shadersFileName
-											, const std::string& csEntry
-											, const std::string& csModel
-											, const std::string& prologue = "");
-
 	struct CompilationOutput
 	{
 		CompilationOutput()
@@ -62,6 +45,24 @@ public:
 		ID3DBlob* psBlob;
 		ID3D11PixelShader* pixelShader;
 	};
+
+	ID3D11VertexShader* CompileVertexShader(const std::string& shadersFileName
+											, const std::string& vsEntry
+											, const std::string& vsModel
+											, CompilationOutput* output = nullptr);
+
+	ID3D11PixelShader* CompilePixelShader(const std::string& shadersFileName
+											, const std::string& psEntry
+											, const std::string& psModel);
+
+	ID3D11GeometryShader* CompileGeometryShader(const std::string& shadersFileName
+											, const std::string& gsEntry
+											, const std::string& gsModel);
+
+	ID3D11ComputeShader* CompileComputeShader(const std::string& shadersFileName
+											, const std::string& csEntry
+											, const std::string& csModel
+											, const std::string& prologue = "");
 
 	bool CompileShaderDuo(const std::string& shadersFileName
 							, const std::string& vsEntry
